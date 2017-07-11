@@ -2,8 +2,8 @@ import time
 from confobo import loop
 from confobo.command import command, bindings, pass_user_data
 from confobo.controllers.voting import vote, BadVoteValueError
-from confobo.controllers.schedule import get_schedule, NoSuchDayError
-from confobo.controllers.subscriptions import unsubscribe_user
+from confobo.controllers.schedule import get_schedule
+from confobo.controllers.subscriptions import remove_all
 from confobo.models.user import User
 from confobo.models.event import Event
 
@@ -16,16 +16,20 @@ def start():
 @pass_user_data
 @command('/stop', desc='Unsubscribe from all news')
 def stop(user_data):
-    if unsubscribe_user(user_data.get('id')):
+    if remove_all(user_data.get('id')):
         return 'You have been unsubscribed.'
 
 
-@command('/schedule', desc='Returns schedule for a given day')
+@command('/schedule', desc='Returns schedule for a given day (%Y-%m-%d format)')
 def view_schedule(day):
+    response = ''
     try:
-        return get_schedule(day)
-    except NoSuchDayError as e:
-        return str(e)
+        schedule = get_schedule(day)
+    except ValueError:
+        return 'Bad date format. See /help for reference.'
+    for e in schedule:
+        response += repr(e) + '\n'
+    return response or 'No schedule for day {}'.format(day)
 
 
 @pass_user_data

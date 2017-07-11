@@ -1,22 +1,15 @@
-from confobo.persistence import schedule
+import datetime
 
-
-class NoSuchDayError(Exception):
-    def __init__(self, date):
-        self.date = date
-
-    def __str__(self):
-        return '`{}` is not one of the conference days.'.format(self.date)
+from confobo.models.calendar import calendar
 
 
 def get_schedule(date: str) -> str:
     """
     Return conference schedule for a given day
 
-    :param date: date for which schedule has been requested
+    :param date: date (string in %Y-%m-%d format) for which schedule has been requested
 
     :return: schedule for the date
     """
-    if date not in schedule.get_conference_days():
-        raise NoSuchDayError(date)
-    return 'Schedule for {}'.format(date)
+    day = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+    return calendar.events(day=day)

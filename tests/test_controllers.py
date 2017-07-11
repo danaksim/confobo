@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock
 
+from confobo.models.calendar import calendar
 from confobo.models.event import Event
 from confobo.models.user import User
 from confobo import controllers
@@ -14,7 +15,7 @@ def fixture_user():
 
 @pytest.fixture(scope="module")
 def fixture_event():
-    return Event(1)
+    return Event(id=1)
 
 
 def test_vote(fixture_user, fixture_event):
@@ -23,7 +24,8 @@ def test_vote(fixture_user, fixture_event):
     vote_unacceptable = 6
 
     assert controllers.voting.vote(fixture_user, vote_acceptable, fixture_event) is True
-    assert controllers.voting.vote(fixture_user, vote_unacceptable, fixture_event) is False
+    with pytest.raises(controllers.voting.BadVoteValueError):
+        controllers.voting.vote(fixture_user, vote_unacceptable, fixture_event)
 
 
 def test_remove_subs(fixture_user):
@@ -33,6 +35,9 @@ def test_remove_subs(fixture_user):
 
 
 def test_schedule():
-    assert controllers.schedule.get_schedule('2017-06-01') == '2017-06-01'
-    with pytest.raises(controllers.schedule.NoSuchDayError):
-        controllers.schedule.get_schedule('2020-06-04')
+    events = calendar.events()
+    assert len(events) == 3
+    wed_events = controllers.schedule.get_schedule('2017-07-12')
+    assert len(wed_events) == 2
+    assert wed_events[0].description == 'Event 1'
+    assert wed_events[0].location == 'Room 404'
