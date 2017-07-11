@@ -2,7 +2,7 @@ from confobo.models.user import User
 from confobo.persistence import subscriptions
 
 
-def unsubscribe_user(user: User) -> bool:
+def remove_all(user: User) -> bool:
     """
     Remove user from all subscription lists
 
