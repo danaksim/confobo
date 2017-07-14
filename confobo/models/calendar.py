@@ -13,9 +13,7 @@ class Calendar:
             cal = ICalendar.from_ical(file.read())
         self._ical = cal
         self._events = []
-        for component in self._ical.walk():
-            if component.name != 'VEVENT':
-                continue
+        for component in self._ical.walk(name='VEVENT'):
             e = Event(component)
             self._events.append(e)
 
